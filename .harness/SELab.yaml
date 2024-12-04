@@ -1,0 +1,49 @@
+pipeline:
+  name: SE-Lab
+  identifier: SELab
+  projectIdentifier: SELab
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: gitglobalcon
+        repoName: SE-lab-goHelloWorldServer
+        build: <+input>
+  stages:
+    - stage:
+        name: Build Test and Push
+        identifier: Build_Test_and_Push
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: SELabCluster
+              namespace: harness-delegate-ng
+              automountServiceAccountToken: true
+              nodeSelector: {}
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Run Unit Test and Build Go App
+                  identifier: Run_Unit_Test_and_Build_Go_App
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: golang:1.17
+                    shell: Sh
+                    command: |-
+                      go get gotest.tools/gotestsum
+                      gotestsum --format=standard-verbose --junitfile unit-tests.xml || true
+                      CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags netgo
+                    reports:
+                      type: JUnit
+                      spec:
+                        paths:
+                          - "*.xml"
+        delegateSelectors:
+          - helm-delegate
