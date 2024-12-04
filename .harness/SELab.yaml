@@ -45,5 +45,14 @@ pipeline:
                       spec:
                         paths:
                           - "*.xml"
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: BuildAndPushDockerRegistry_1
+                  identifier: BuildAndPushDockerRegistry_1
+                  spec:
+                    connectorRef: account.harnessImage
+                    repo: stealthc89/se-lab
+                    tags:
+                      - <+pipeline.sequenceId>
         delegateSelectors:
           - helm-delegate
