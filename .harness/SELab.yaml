@@ -69,3 +69,34 @@ pipeline:
             enabled: false
         delegateSelectors:
           - helm-delegate
+    - stage:
+        name: Integration test
+        identifier: Integration_test
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            useFromStage: Build_Test_and_Push
+          execution:
+            steps:
+              - step:
+                  type: Background
+                  name: run_Go_app
+                  identifier: run_Go_app
+                  spec:
+                    connectorRef: cmdockerhub
+                    image: stealthc89/se-lab:<+pipeline.sequenceId>
+                    shell: Sh
+              - step:
+                  type: Run
+                  name: Test server connection
+                  identifier: Test_server_connection
+                  spec:
+                    connectorRef: cmdockerhub
+                    image: curlimages/curl:7.73.0
+                    shell: Sh
+                    command: |-
+                      sleep 10
+                      curl localhost:8080
+                      curl localhost:8080?Hello!_I_am_a_nice_demo!
