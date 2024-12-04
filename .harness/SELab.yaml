@@ -34,7 +34,7 @@ pipeline:
                   identifier: Run_Unit_Test_and_Build_Go_App
                   spec:
                     connectorRef: account.harnessImage
-                    image: golang:1.17
+                    image: golang:1.19
                     shell: Sh
                     command: |-
                       go get gotest.tools/gotestsum
