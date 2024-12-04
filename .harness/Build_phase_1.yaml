@@ -51,6 +51,7 @@ template:
                 repo: stealthc89/se-lab
                 tags:
                   - <+pipeline.sequenceId>
+                  - dev
       caching:
         enabled: true
         paths: []
