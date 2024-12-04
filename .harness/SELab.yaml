@@ -54,5 +54,10 @@ pipeline:
                     repo: stealthc89/se-lab
                     tags:
                       - <+pipeline.sequenceId>
+          caching:
+            enabled: true
+            paths: []
+          buildIntelligence:
+            enabled: false
         delegateSelectors:
           - helm-delegate
