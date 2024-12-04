@@ -37,8 +37,16 @@ pipeline:
                     image: golang:1.19
                     shell: Sh
                     command: |-
-                      go get gotest.tools/gotestsum
+                      # Install gotestsum correctly
+                      go install gotest.tools/gotestsum@latest
+
+                      # Add the Go binary directory to PATH (if not already in PATH)
+                      export PATH=$PATH:$(go env GOPATH)/bin
+
+                      # Run gotestsum to execute tests and generate a JUnit report
                       gotestsum --format=standard-verbose --junitfile unit-tests.xml || true
+
+                      # Build a static Go binary for Linux
                       CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags netgo
                     reports:
                       type: JUnit
