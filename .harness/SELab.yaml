@@ -35,7 +35,7 @@ pipeline:
                   identifier: run_Go_app
                   spec:
                     connectorRef: cmdockerhub
-                    image: stealthc89/se-lab:13
+                    image: stealthc89/se-lab:<+pipeline.sequenceId>
                     shell: Sh
               - step:
                   type: Run
