@@ -1,0 +1,62 @@
+template:
+  name: Build_phase
+  type: Stage
+  projectIdentifier: SELab
+  orgIdentifier: default
+  spec:
+    type: CI
+    spec:
+      cloneCodebase: true
+      infrastructure:
+        type: KubernetesDirect
+        spec:
+          connectorRef: SELabCluster
+          namespace: harness-delegate-ng
+          automountServiceAccountToken: true
+          nodeSelector: {}
+          os: Linux
+      execution:
+        steps:
+          - step:
+              type: Run
+              name: Run Unit Test and Build Go App
+              identifier: Run_Unit_Test_and_Build_Go_App
+              spec:
+                connectorRef: account.harnessImage
+                image: golang:1.19
+                shell: Sh
+                command: |-
+                  # Install gotestsum correctly
+                  go install gotest.tools/gotestsum@latest
+
+                  # Add the Go binary directory to PATH (if not already in PATH)
+                  export PATH=$PATH:$(go env GOPATH)/bin
+
+                  # Run gotestsum to execute tests and generate a JUnit report
+                  gotestsum --format=standard-verbose --junitfile unit-tests.xml || true
+
+                  # Build a static Go binary for Linux
+                  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags netgo
+                reports:
+                  type: JUnit
+                  spec:
+                    paths:
+                      - "*.xml"
+          - step:
+              type: BuildAndPushDockerRegistry
+              name: BuildAndPushDockerRegistry_1
+              identifier: BuildAndPushDockerRegistry_1
+              spec:
+                connectorRef: cmdockerhub
+                repo: stealthc89/se-lab
+                tags:
+                  - <+pipeline.sequenceId>
+      caching:
+        enabled: true
+        paths: []
+      buildIntelligence:
+        enabled: false
+    delegateSelectors:
+      - helm-delegate
+  identifier: Build_phase
+  versionLabel: "1"
